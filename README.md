@@ -1,3 +1,5 @@
+**繁體中文** · [简体中文](README.zh-CN.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
+
 <p align="center">
   <img src="assets/icon.png" alt="日序圖示" width="88">
 </p>
