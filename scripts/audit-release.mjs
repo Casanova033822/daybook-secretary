@@ -1,0 +1,34 @@
+import { listPackage, extractFile } from '@electron/asar';
+import { getCurrentFuseWire, FuseV1Options } from '@electron/fuses';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, normalize, resolve } from 'node:path';
+import assert from 'node:assert/strict';
+const root = resolve(process.argv[2] ?? 'release');
+const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
+const executable = join(root, 'win-unpacked', '日序.exe');
+const archive = join(root, 'win-unpacked', 'resources', 'app.asar');
+const files = listPackage(archive).map(path => path.replaceAll('\\', '/').replace(/^\//, ''));
+const forbidden = files.filter(path => /(^|\/)(?:test-results|\.cache|\.git|\.private|tests|scripts)(\/|$)|(?:\.sqlite(?:-.*)?|\.db(?:-.*)?|\.log|\.pem|\.pfx|\.map)$|(^|\/)\.env(?:\.|$)/i.test(path));
+assert.deepEqual(forbidden, [], 'Private/development files found in the application archive.');
+const packaged = JSON.parse(extractFile(archive, 'package.json').toString());
+assert.equal(packaged.version, version);
+assert.equal(packaged.name, 'daybook-secretary');
+for (const name of ['dist/index.html', 'dist-electron/electron/main.js', 'dist-electron/electron/preload.cjs', 'dist-electron/electron/reminder-preload.cjs', 'assets/icon.ico', 'THIRD_PARTY_NOTICES.md', 'LICENSE']) assert.ok(files.includes(name), `Missing ${name}`);
+assert.ok(files.some(path => /^dist\/assets\/reminder-.*\.wav$/.test(path)));
+const home = process.env.USERPROFILE ?? process.env.HOME;
+for (const path of files.filter(path => !path.startsWith('node_modules/') && /\.(js|cjs|json|html|css|md)$/.test(path))) {
+  const text = extractFile(archive, normalize(path)).toString();
+  if (home) assert.ok(![home, home.replaceAll('\\', '/'), home.replaceAll('\\', '\\\\')].some(value => text.includes(value)), `Personal home path in ${path}`);
+  assert.ok(!/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bgh[pousr]_[A-Za-z0-9]{30,}/.test(text), `Possible secret in ${path}`);
+}
+const wire = await getCurrentFuseWire(executable);
+const required = { RunAsNode: 48, EnableNodeOptionsEnvironmentVariable: 48, EnableNodeCliInspectArguments: 48, EnableEmbeddedAsarIntegrityValidation: 49, OnlyLoadAppFromAsar: 49, GrantFileProtocolExtraPrivileges: 48 };
+for (const [name, value] of Object.entries(required)) assert.equal(wire[FuseV1Options[name]], value, `Unsafe fuse: ${name}`);
+for (const name of ['LICENSE.electron.txt', 'LICENSES.chromium.html']) assert.ok(existsSync(join(root, 'win-unpacked', name)), `Missing ${name}`);
+const installerName = `Daybook-Setup-${version}.exe`, installer = join(root, installerName);
+assert.ok(existsSync(installer));
+const sha256 = createHash('sha256').update(readFileSync(installer)).digest('hex');
+writeFileSync(join(root, 'SHA256SUMS.txt'), `${sha256}  ${installerName}\n`);
+writeFileSync(join(root, 'release-audit.json'), JSON.stringify({ version, archiveFileCount: files.length, forbiddenFiles: [], fuseChecksPassed: true, sha256, installer: installerName }, null, 2));
+console.log(`PASS: archive privacy, bundled assets/licenses, hardened fuses; SHA-256 generated for ${installerName}.`);
