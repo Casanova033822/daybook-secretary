@@ -24,10 +24,14 @@ jobs:
       - run: npm run test:desktop
       - run: node tests/delete-row.mjs
       - run: node tests/editor-review.mjs
+      - run: node tests/release-regressions.mjs
+      - run: node tests/appearance.mjs
+      - run: node tests/readability.mjs
       - run: node tests/window-storage.mjs
       - run: node tests/layout.mjs
       - run: npm run dist
       - run: npm run test:release
+      - run: node tests/installer.mjs
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: daybook-windows-x64

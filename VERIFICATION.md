@@ -10,12 +10,16 @@
 | npm run build | React 與 Electron TypeScript、Vite 正式建置 |
 | npm run test:desktop | 真實介面輸入、常用事項、各檢視、完成、提醒小卡、迷你模式、資料與視窗位置保存 |
 | node tests/layout.mjs | 1180／850px 寬度、字體備援、欄位對齊、橫向時間、跨日及完成樣式 |
+| node tests/readability.mjs | 中英德阿語、深淺色、14–16px 字級、說明文字至少 4.5:1 對比、850／1180px 無橫向溢出、固定設定操作區、主題切換鈕位置與鍵盤操作 |
+| node tests/appearance.mjs | 14 種語言與旗幟、即時主題同步、設定草稿、RTL、重新啟動保存、儲存失敗保留原設定、離線資源 |
 | node tests/delete-row.mjs | 編輯／垃圾桶順序、直接刪除單次、不影響其他日期、失敗保留資料 |
 | node tests/editor-review.mjs | 提醒開啟另一筆編輯時的草稿隔離、非同步儲存競態、自訂提醒逐字輸入 |
+| node tests/release-regressions.mjs | 待辦略過隱藏提醒驗證、草稿保留、14 語言星期按鈕穩定、深淺色月曆關閉圖示與鍵盤操作、CSP |
 | node tests/window-storage.mjs | 視窗偏好寫入失敗仍可收進系統匣及切換模式 |
 | node tests/reminders.mjs | 開發版的真實分鐘排程、完整／迷你／背景、合併、完成／改期、重試與模擬喚醒 |
 | npm run dist | Windows x64 NSIS、內附資源／授權、包內隱私掃描、Electron fuses、安裝檔 SHA-256 |
 | npm run test:release | 加固後的執行檔、隔離資料、環境變數注入防護、文字輸入與 IPC、提醒與重新啟動保存 |
+| node tests/installer.mjs | 僅 GitHub Actions 臨時 Windows 主機：真實 NSIS 安裝、已安裝程式測試、同版覆蓋安裝與解除安裝保留假資料 |
 | npm run export:source | 公開檔案白名單、常見金鑰與當地使用者路徑檢查 |
 
 打包測試以 Chromium CDP 連接測試用 renderer，不重新開啟已停用的 Node inspector。CDP 只在測試命令中啟用。tests/windows.mjs 保留作為舊版整合測試紀錄，不能用來測試停用 inspector 的正式版本。

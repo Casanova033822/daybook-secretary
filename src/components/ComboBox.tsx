@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from './Icon';
 export function ComboBox({ label, value, options, onChange, numeric = false, placeholder = '', filter = false, disabled = false }: {
@@ -21,9 +22,9 @@ export function ComboBox({ label, value, options, onChange, numeric = false, pla
         if (e.key === 'Enter' && open) { e.preventDefault(); if (visible[highlight]) choose(visible[highlight]); else setOpen(false); }
         if (e.key === 'Tab') setOpen(false);
       }}/>
-    <button type="button" className="combo-arrow" aria-label={`展開${label}`} disabled={disabled} onClick={() => { setSearching(false); setOpen(!open); setHighlight(Math.max(0, options.indexOf(value))); input.current?.focus(); }}><Icon name="chevron" size={16}/></button>
-    {expanded && <div id={`${id}-options`} className="combo-options" role="listbox" aria-label={`${label}選項`}>
-      {visible.length ? visible.map((option, index) => <button type="button" key={`${option}-${index}`} id={`${id}-${index}`} data-index={index} role="option" aria-selected={option === value} className={highlight === index ? 'highlight' : ''} onMouseDown={e => e.preventDefault()} onClick={() => choose(option)}>{option}{option === value && <Icon name="check" size={15}/>}</button>) : <div className="combo-empty">沒有符合的項目，可直接使用輸入文字</div>}
+    <button type="button" className="combo-arrow" aria-label={t('展開{label}', { label })} disabled={disabled} onClick={() => { setSearching(false); setOpen(!open); setHighlight(Math.max(0, options.indexOf(value))); input.current?.focus(); }}><Icon name="chevron" size={16}/></button>
+    {expanded && <div id={`${id}-options`} className="combo-options" role="listbox" aria-label={t('{label}選項', { label })}>
+      {visible.length ? visible.map((option, index) => <button type="button" key={`${option}-${index}`} id={`${id}-${index}`} data-index={index} role="option" aria-selected={option === value} className={highlight === index ? 'highlight' : ''} onMouseDown={e => e.preventDefault()} onClick={() => choose(option)}>{option}{option === value && <Icon name="check" size={15}/>}</button>) : <div className="combo-empty">{t("沒有符合的項目，可直接使用輸入文字")}</div>}
     </div>}
   </div>;
 }

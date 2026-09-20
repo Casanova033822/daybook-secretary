@@ -1,0 +1,45 @@
+// Intentionally CI-only: never install, replace or uninstall the developer's app.
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { join, resolve, relative, isAbsolute } from 'node:path';
+import { createHash } from 'node:crypto';
+import { Store } from '../dist-electron/electron/store.js';
+
+assert.equal(process.env.GITHUB_ACTIONS, 'true', 'Installer test is restricted to disposable GitHub Actions runners');
+assert.equal(process.env.RUNNER_OS, 'Windows');
+assert.ok(process.env.RUNNER_TEMP && process.env.APPDATA);
+const temporary = resolve(process.env.RUNNER_TEMP), installation = resolve(temporary, 'daybook-install-test');
+const relativeTarget = relative(temporary, installation);
+assert.ok(relativeTarget && !relativeTarget.startsWith('..') && !isAbsolute(relativeTarget));
+assert.equal(existsSync(installation), false, 'Never replace an existing installation');
+const profile = join(process.env.APPDATA, '日序');
+assert.equal(existsSync(profile), false, 'Never touch an existing user profile');
+mkdirSync(profile, { recursive: true });
+const database = join(profile, 'daybook.sqlite');
+const store = new Store(database, { locale: 'en-US', theme: 'dark' });
+store.saveSettings({ ...store.snapshot().settings, launchOnLogin: false });
+store.save({ value: { title: 'Preserve my data through reinstall and uninstall', notes: 'Synthetic CI data', date: '2026-09-21', startAt: null, endAt: null, reminders: [], repeat: { kind: 'none', weekdays: [], until: null } } });
+store.close();
+const fingerprint = () => createHash('sha256').update(readFileSync(database)).digest('hex');
+const initial = fingerprint(), pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+const installer = resolve(`release/Daybook-Setup-${pkg.version}.exe`);
+const run = (file, args) => new Promise((resolve, reject) => {
+  const child = spawn(file, args, { windowsHide: true, stdio: 'inherit', env: { ...process.env, DAYBOOK_TEST: '1', DAYBOOK_DATA_DIR: profile } });
+  child.on('error', reject); child.on('exit', code => code === 0 ? resolve() : reject(new Error(`Process failed (${code}): ${file}`)));
+});
+await run(installer, ['/S', '/currentuser', `/D=${installation}`]);
+const executable = join(installation, '日序.exe');
+assert.ok(existsSync(executable)); assert.equal(fingerprint(), initial);
+await run(process.execPath, ['tests/release.mjs', executable]);
+const installedArchive = createHash('sha256').update(readFileSync(join(installation, 'resources', 'app.asar'))).digest('hex');
+const originalArchive = createHash('sha256').update(readFileSync('release/win-unpacked/resources/app.asar')).digest('hex');
+assert.equal(installedArchive, originalArchive);
+await run(installer, ['/S', '/currentuser', `/D=${installation}`]);
+assert.ok(existsSync(executable)); assert.equal(fingerprint(), initial);
+const uninstallers = readdirSync(installation).filter(name => /^Uninstall.*\.exe$/i.test(name));
+assert.equal(uninstallers.length, 1);
+await run(join(installation, uninstallers[0]), ['/S', `_?=${installation}`]);
+assert.equal(existsSync(executable), false); assert.equal(fingerprint(), initial);
+writeFileSync('test-results/installer-verification.json', JSON.stringify({ version: pkg.version, cleanInstall: true, installedAppTest: true, installedArchiveMatches: true, reinstallPreservesData: true, uninstallPreservesData: true, limitation: 'Disposable Windows CI runner; not a physical-device or cross-version upgrade test.' }, null, 2));
+console.log('PASS: real NSIS install, installed app, same-version reinstall and uninstall; existing SQLite data preserved.');

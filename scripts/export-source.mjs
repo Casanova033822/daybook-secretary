@@ -19,6 +19,8 @@ for (const directory of ['electron', 'src', 'scripts', 'tests', '.github']) {
   visit(directory);
 }
 files.push('assets/icon.png', 'assets/icon.ico', 'assets/reminder.wav');
+for (const flag of ['hk', 'cn', 'us', 'jp', 'kr', 'es', 'fr', 'de', 'br', 'it', 'ru', 'sa', 'in', 'id']) files.push(`assets/flags/${flag}.svg`);
+files.push('assets/flags/LICENSE', 'assets/flags/README.md');
 if (existsSync(destination)) throw new Error('The export directory already exists. Review it before choosing a new release version or directory.');
 const home = process.env.USERPROFILE ?? process.env.HOME;
 for (const path of files) {

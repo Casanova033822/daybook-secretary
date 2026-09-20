@@ -32,7 +32,7 @@ try {
     for (const row of measure.rows) {
       assert.equal(row.cells.length, 6);
       row.cells.forEach((cell, i) => assert.ok(Math.abs(cell.x - measure.header[i].x) < 1));
-      assert.equal(row.whitespace, 'nowrap'); assert.equal(row.timeSize, '14px'); assert.ok(row.height >= 64 && row.height <= 70);
+      assert.equal(row.whitespace, 'nowrap'); assert.equal(row.timeSize, '14px'); assert.ok(row.height >= 84);
       assert.match(row.time, /^\d{2}:\d{2} - \d{2}:\d{2}$/);
     }
     assert.equal(measure.filler, false); assert.equal(measure.overflow, false);
@@ -47,7 +47,7 @@ try {
   const { nodeId } = await session.send('DOM.querySelector', { nodeId: root.nodeId, selector: '.row-title strong' });
   const fonts = await session.send('CSS.getPlatformFontsForNode', { nodeId });
   assert.ok(fonts.fonts.some(font => font.glyphCount > 0), JSON.stringify(fonts));
-  assert.match(await page.locator('html').evaluate(el => getComputedStyle(el).fontFamily), /Noto Sans TC.*Microsoft JhengHei/);
+  assert.match(await page.locator('html').evaluate(el => getComputedStyle(el).fontFamily), /Segoe UI.*Microsoft JhengHei UI.*Nirmala UI/);
   // Force a missing primary family to exercise the operating-system fallback path.
   await page.locator('html').evaluate(el => { el.style.fontFamily = '"Daybook Missing Font", "Microsoft JhengHei", sans-serif'; });
   await page.evaluate(() => document.fonts.ready);
@@ -57,5 +57,5 @@ try {
   assert.equal(await page.locator('.workspace').evaluate(el => el.scrollWidth > el.clientWidth), false);
   await page.screenshot({ path: `test-results/${version}-fallback-font.png` });
   writeFileSync('test-results/layout-verification.json', JSON.stringify({ measurements, fonts, fallbackFonts }, null, 2));
-  console.log(`PASS: local font/fallback (${fonts.fonts.map(f => f.familyName).join(', ')}), 1180/850 widths, six aligned columns, 64px rows, horizontal times, cross-day note, completed strike-through.`);
+  console.log(`PASS: local font/fallback (${fonts.fonts.map(f => f.familyName).join(', ')}), 1180/850 widths, six aligned columns, readable rows, horizontal times, cross-day note, completed strike-through.`);
 } finally { if (desktop) { const proc = desktop.process(); await Promise.race([desktop.close().catch(() => {}), new Promise(r => setTimeout(r, 4000))]); proc.kill(); } }

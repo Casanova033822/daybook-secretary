@@ -2,7 +2,7 @@ import type { Exception, Item, ItemInput, Occurrence, OccurrenceState, Reminder,
 import { addDays, dateKey, dayDifference, intersects, shiftStamp, validDate, validStamp } from './time.js';
 
 export const DEFAULT_REMINDERS: Reminder[] = [{ anchor: 'start', minutes: 10 }, { anchor: 'start', minutes: 0 }];
-export const PRESET_TITLES = ['冥想', '去健身', '早餐', '午餐', '晚餐', '洗澡'];
+export const PRESET_TITLES = ['冥想', '去健身', '早餐', '午餐', '晚餐', '洗澡'] as const;
 export function validateReminders(value: unknown): Reminder[] {
   if (!Array.isArray(value) || value.length > 20) throw new Error('每筆行程最多設定 20 個提醒。');
   const keys = new Set<string>();

@@ -1,3 +1,4 @@
+import type { Appearance } from './appearance.js';
 export type Reminder = { anchor: 'start' | 'end'; minutes: number };
 export type Repeat = { kind: 'none' | 'daily' | 'weekly'; weekdays: number[]; until: string | null };
 export type ItemInput = {
@@ -14,10 +15,12 @@ export type Exception = { itemId: string; occurrenceDate: string; deleted: boole
 export type Scope = 'single' | 'future';
 export type SaveRequest = { value: ItemInput; target?: { itemId: string; occurrenceDate: string; scope: Scope } };
 export type Target = { itemId: string; occurrenceDate: string };
-export type ReminderCardItem = { key: string; title: string; time: string; endDate?: string; reason: string; target?: Target };
+export type ReminderCardItem = { key: string; title: string; time: string; endDate?: string; reason: string; rules?: Reminder[]; target?: Target };
 export type ReminderCardContent = { id: string; items: ReminderCardItem[]; missed: boolean; test: boolean };
 export type ReminderDeliveryResult = { display: 'shown' | 'failed' | 'cancelled'; audio: 'played' | 'failed' | 'cancelled' | 'not-attempted'; error?: string };
 export type ReminderCardBridge = {
+  appearance(): Promise<Appearance>;
+  subscribeAppearance(callback: (value: Appearance) => void): () => void;
   content(): Promise<ReminderCardContent>;
   ready(): Promise<boolean>;
   audioResult(result: 'played' | 'failed', error?: string): Promise<void>;
@@ -25,7 +28,8 @@ export type ReminderCardBridge = {
   open(key?: string): Promise<void>;
 };
 export type Preset = { id: string; title: string };
-export type Settings = { launchOnLogin: boolean; alwaysOnTop: boolean; defaultReminders: Reminder[] };
+export type GeneralSettings = { launchOnLogin: boolean; alwaysOnTop: boolean; defaultReminders: Reminder[] };
+export type Settings = GeneralSettings & Appearance;
 export type Snapshot = { items: Item[]; exceptions: Exception[]; states: OccurrenceState[]; presets: Preset[]; settings: Settings };
 export type WindowMode = 'full' | 'mini';
 export type WindowState = { mode: WindowMode; maximized: boolean };
@@ -36,7 +40,10 @@ export type Bridge = {
   remove(target: Target & { scope: Scope }): Promise<void>;
   complete(target: Target & { completed: boolean }): Promise<void>;
   savePresets(presets: Preset[]): Promise<void>;
-  saveSettings(settings: Settings): Promise<void>;
+  saveSettings(settings: GeneralSettings): Promise<void>;
+  saveAppearance(patch: Partial<Appearance>): Promise<Appearance>;
+  appearance(): Promise<Appearance>;
+  rendererReady(): Promise<void>;
   testNotification(): Promise<ReminderDeliveryResult>;
   windowState(): Promise<WindowState>;
   windowAction(action: 'mini' | 'full' | 'minimize' | 'maximize' | 'close'): Promise<void>;

@@ -9,5 +9,6 @@ for (const [path, entry] of Object.entries(lock.packages).sort(([a], [b]) => a.l
   if (!licenseFile) throw new Error(`Missing license for ${pkg.name}; inspect before distributing.`);
   sections.push(`## ${pkg.name} ${pkg.version}\n\n${readFileSync(join(path, licenseFile), 'utf8').trim()}`);
 }
+sections.push(`## flag-icons 7.5.0\n\nBundled country/region SVG flags from https://github.com/lipis/flag-icons/tree/v7.5.0 (assets/flags).\n\n${readFileSync('assets/flags/LICENSE', 'utf8').trim()}`);
 writeFileSync('THIRD_PARTY_NOTICES.md', `${sections.join('\n\n')}\n`);
 console.log('Third-party license notices generated.');

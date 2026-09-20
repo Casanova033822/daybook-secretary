@@ -83,6 +83,6 @@ test('clock rollback does not defer recovered receipt storage until the old cloc
 test('large retained history does not overflow the scheduler argument stack', () => {
   const past = { ...value, date: '2020-01-01', startAt: '2020-01-01T15:00', endAt: '2020-01-01T16:00',
     reminders: Array.from({ length: 20 }, (_, minutes) => ({ anchor: 'start' as const, minutes })), createdAt: 1, updatedAt: 1 };
-  const snapshot: Snapshot = { items: Array.from({ length: 10000 }, (_, i) => ({ ...past, id: String(i) })), exceptions: [], states: [], presets: [], settings: { launchOnLogin: false, alwaysOnTop: false, defaultReminders: [] } };
+  const snapshot: Snapshot = { items: Array.from({ length: 10000 }, (_, i) => ({ ...past, id: String(i) })), exceptions: [], states: [], presets: [], settings: { theme: 'light', locale: 'zh-TW', launchOnLogin: false, alwaysOnTop: false, defaultReminders: [] } };
   assert.deepEqual(reminderCandidates(snapshot, now - 1, now), []);
 });

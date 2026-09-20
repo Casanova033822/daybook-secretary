@@ -6,7 +6,7 @@
 2. 執行 `npm audit --registry=https://registry.npmjs.org/` 並審查結果。確認 `package.json` 與 `package-lock.json` 的版本一致。
 3. 執行 `npm run dist`、`npm run test:release`，並完成 [VERIFICATION.md](VERIFICATION.md) 的人工驗收。保留 appId `tw.daybook.secretary` 與產品名稱 `日序`，避免更新時更換資料位置。
 4. 執行 `npm run export:source`。輸出 `release/daybook-source-版本/` 是待公開原始碼白名單，不含個人行程、日誌、截圖、依賴或安裝成品。重新發佈時使用新版本；工具不會覆寫既有匯出資料夾。
-5. 先檢查匯出內容，再在該目錄建立 Git 儲存庫。不要把整個工作目錄打包上傳。`.gitignore` 無法清除已經提交的檔案或歷史。
+5. 檢查待提交原始碼與完整 Git 歷史，再推送至本專案；不要把整個工作目錄打包上傳。`.gitignore` 無法清除已經提交的檔案或歷史。
 
 ## Git 作者隱私
 
@@ -24,4 +24,4 @@
 
 啟用 GitHub 私密漏洞回報與依賴安全通知。內附 GitHub Actions 僅負責測試、建置與保存 artifacts，不會自動發佈 Release，權限限於讀取內容。首次推送後需確認工作流程在 GitHub 實際通過。
 
-`LICENSE` 為 PolyForm Noncommercial 1.0.0；保留第三方授權聲明。若未來取得簽章憑證，使用 CI secrets 管理，絕不把憑證、私鑰或密碼提交到原始碼。
+`LICENSE` 為 MIT；保留第三方授權聲明。若未來取得簽章憑證，使用 CI secrets 管理，絕不把憑證、私鑰或密碼提交到原始碼。

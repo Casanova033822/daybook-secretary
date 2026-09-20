@@ -34,6 +34,7 @@ try {
   assert.deepEqual(await page.getByRole('listbox', { name: '開始分鐘選項' }).getByRole('option').allTextContents(), ['00','05','10','15','20','25','30','35','40','45','50','55']);
   await page.getByRole('option', { name: '05', exact: true }).click();
   await page.getByRole('combobox', { name: '開始分鐘', exact: true }).fill('07');
+  await page.getByRole('combobox', { name: '持續分鐘', exact: true }).fill('60');
   await page.getByLabel('重複', { exact: true }).selectOption('daily');
   await page.screenshot({ path: 'test-results/02-editor.png' });
   await page.getByRole('button', { name: '新增事項', exact: true }).last().click();

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, powerMonitor, protocol, screen, Tray } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, nativeTheme, powerMonitor, protocol, screen, Tray } from 'electron';
 import { randomUUID } from 'node:crypto';
 import { dirname, extname, isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +10,8 @@ import { Store } from './store.js';
 import { Scheduler } from './scheduler.js';
 import { ReminderWindows } from './reminder-window.js';
 import { allowedRequest, bundledPath, developmentUrl, rendererUrl, trustedRenderer } from './security.js';
+import { backgroundFor, isLocale, isTheme, systemLocale, type Appearance } from '../src/shared/appearance.js';
+import { appTitle, setLocale, t } from '../src/shared/i18n.js';
 
 const APP_ID = 'tw.daybook.secretary';
 protocol.registerSchemesAsPrivileged([{ scheme: 'daybook', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }]);
@@ -25,6 +27,22 @@ let reminderWindows: ReminderWindows;
 let mode: WindowMode = 'full', quitting = false, switching = false;
 let interval: ReturnType<typeof setInterval>;
 let geometryTimer: ReturnType<typeof setTimeout>;
+let rendererShown = false;
+function appearance(): Appearance { const { theme, locale } = store.snapshot().settings; return { theme, locale }; }
+function refreshTray(): void {
+  if (!tray) return;
+  tray.setToolTip(appTitle());
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: t('開啟日序'), click: () => switchMode('full') }, { label: t('迷你視窗'), click: () => switchMode('mini') },
+    { type: 'separator' }, { label: t('完全結束（停止提醒）'), click: () => app.quit() },
+  ]));
+}
+function applyAppearance(): void {
+  const value = appearance();
+  setLocale(value.locale); nativeTheme.themeSource = value.theme;
+  if (win) { win.setBackgroundColor(backgroundFor(value.theme)); win.setTitle(appTitle()); }
+  reminderWindows?.updateAppearance(); refreshTray();
+}
 function emit(event: AppEvent): void { if (win && !win.isDestroyed()) win.webContents.send('app-event', event); }
 function log(error: unknown): void { try { appendFileSync(join(app.getPath('userData'), 'app.log'), `${new Date().toISOString()} ${String(error)}\n`); } catch { /* no writable log */ } }
 function report(error: unknown): void { log(error); emit({ type: 'error', message: error instanceof Error ? error.message : String(error) }); }
@@ -65,7 +83,7 @@ function notifyDue(due: DueReminder[], missed: boolean): Promise<ReminderDeliver
     const o = list[0].occurrence;
     return { key: o.key, title: o.title, time: `${clock(o.startAt!)} - ${clock(o.endAt!)}`,
       endDate: o.startAt!.slice(0, 10) !== o.endAt!.slice(0, 10) ? o.endAt!.slice(0, 10) : undefined,
-      reason: list.map(r => `${r.rule.anchor === 'start' ? '開始' : '結束'}${r.rule.minutes ? `前 ${r.rule.minutes} 分鐘` : '當下'}`).join(' · '),
+      reason: '', rules: list.map(r => r.rule),
       target: { itemId: o.itemId, occurrenceDate: o.occurrenceDate } };
   }) };
   return reminderWindows.show(content, () => {
@@ -82,7 +100,7 @@ function createWindow(): void {
   const area = screen.getPrimaryDisplay().workArea;
   const bounds = fitBounds(store.getMeta<Electron.Rectangle>(`bounds-${mode}`) ?? { x: area.x + Math.max(0, Math.round((area.width - 1180) / 2)), y: area.y + 40, width: mode === 'mini' ? 390 : 1180, height: mode === 'mini' ? 600 : 820 });
   win = new BrowserWindow({ ...bounds, minWidth: mode === 'mini' ? 330 : 850, minHeight: mode === 'mini' ? 300 : 600, show: false,
-    frame: false, backgroundColor: '#f6f7fb', title: '日序 · 私人秘書', icon: join(root, 'assets/icon.png'),
+    frame: false, backgroundColor: backgroundFor(appearance().theme), title: appTitle(), icon: join(root, 'assets/icon.png'),
     webPreferences: { preload: join(dirname(fileURLToPath(import.meta.url)), 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true } });
   win.setMenu(null);
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
@@ -96,7 +114,7 @@ function createWindow(): void {
   const geometry = () => { clearTimeout(geometryTimer); geometryTimer = setTimeout(saveBounds, 250); };
   win.on('move', geometry); win.on('resize', geometry);
   win.on('maximize', notifyState); win.on('unmaximize', notifyState);
-  win.once('ready-to-show', () => { if (!process.argv.includes('--background') && !testMode) win.show(); });
+  // Show only after the renderer has applied preferences and loaded its first snapshot.
   void win.loadURL(rendererUrl(dist, devUrl)).catch(report);
   applySettings(store.snapshot().settings);
 }
@@ -106,6 +124,19 @@ function setupIpc(): void {
     return action(value);
   });
   const mutate = (action: () => void) => { action(); emit({ type: 'changed' }); };
+  handle('appearance', appearance);
+  handle('appearance-save', value => {
+    const previous = appearance();
+    const next = store.saveAppearance(value);
+    try { applyAppearance(); }
+    catch (error) { store.saveAppearance(previous); applyAppearance(); throw error; }
+    emit({ type: 'changed' }); return next;
+  });
+  handle('renderer-ready', () => {
+    if (rendererShown) return;
+    rendererShown = true;
+    if (!process.argv.includes('--background') && !testMode) win.show();
+  });
   handle('snapshot', () => store.snapshot());
   handle('save', value => mutate(() => { store.save(value); }));
   handle('remove', value => mutate(() => store.remove(value)));
@@ -113,7 +144,7 @@ function setupIpc(): void {
   handle('presets', value => mutate(() => store.savePresets(value)));
   handle('settings', value => mutate(() => { const previous = store.snapshot().settings; store.saveSettings(value); try { applySettings(store.snapshot().settings); } catch (e) { store.saveSettings(previous); throw e; } }));
   handle('test-notification', () => reminderWindows.show({ id: randomUUID(), missed: false, test: true,
-    items: [{ key: 'test', title: '提醒已準備好', time: new Intl.DateTimeFormat('zh-TW', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date()), reason: '日序小卡＋提示音測試' }] }));
+    items: [{ key: 'test', title: t('提醒已準備好'), time: new Intl.DateTimeFormat(appearance().locale, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date()), reason: '' }] }));
   handle('window-state', windowState);
   handle('window-action', action => {
     if (action === 'full' || action === 'mini') switchMode(action);
@@ -133,11 +164,17 @@ else {
     protocol.handle('daybook', request => {
       const path = bundledPath(request.url, dist);
       if (request.method !== 'GET' || !path) return new Response('Not found', { status: 404 });
-      const mime: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.wav': 'audio/wav' };
+      const mime: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.wav': 'audio/wav', '.svg': 'image/svg+xml' };
       try { return new Response(new Uint8Array(readFileSync(path)), { headers: { 'Content-Type': mime[extname(path)], 'X-Content-Type-Options': 'nosniff' } }); }
       catch { return new Response('Not found', { status: 404 }); }
     });
-    store = new Store(join(app.getPath('userData'), 'daybook.sqlite'));
+    const initial: Appearance = testMode ? {
+      locale: isLocale(process.env.DAYBOOK_TEST_LOCALE) ? process.env.DAYBOOK_TEST_LOCALE : 'zh-TW',
+      theme: isTheme(process.env.DAYBOOK_TEST_THEME) ? process.env.DAYBOOK_TEST_THEME : 'light',
+    } : { locale: systemLocale(app.getPreferredSystemLanguages()), theme: nativeTheme.shouldUseDarkColors ? 'dark' : 'light' };
+    setLocale(initial.locale);
+    store = new Store(join(app.getPath('userData'), 'daybook.sqlite'), initial);
+    setLocale(appearance().locale); nativeTheme.themeSource = appearance().theme;
     reminderWindows = new ReminderWindows(root, (target?: Target) => { switchMode('full'); emit({ type: 'open', target, date: dateKey() }); }, (content, result) => {
       const entry = { at: Date.now(), id: content.id, test: content.test, missed: content.missed, count: content.items.length, ...result };
       try {
@@ -145,14 +182,10 @@ else {
         if (testMode) store.setMeta('test-notifications', [...(store.getMeta<unknown[]>('test-notifications') ?? []), entry]);
         if (result.display === 'failed' || result.audio === 'failed') log(JSON.stringify(entry));
       } catch (error) { log(error); }
-    }, devUrl);
+    }, devUrl, appearance);
     createWindow(); setupIpc();
     tray = new Tray(nativeImage.createFromPath(join(root, 'assets/icon.png')).resize({ width: 20, height: 20 }));
-    tray.setToolTip('日序 · 私人秘書');
-    tray.setContextMenu(Menu.buildFromTemplate([
-      { label: '開啟日序', click: () => switchMode('full') }, { label: '迷你視窗', click: () => switchMode('mini') },
-      { type: 'separator' }, { label: '完全結束（停止提醒）', click: () => { app.quit(); } },
-    ]));
+    refreshTray();
     tray.on('double-click', () => switchMode(mode));
     scheduler = new Scheduler(store, notifyDue, log);
     const tick = (resume = false) => { void scheduler.tick(Date.now(), resume).catch(report); };
@@ -161,5 +194,5 @@ else {
     powerMonitor.on('resume', () => tick(true));
     powerMonitor.on('unlock-screen', () => tick(true));
     screen.on('display-removed', () => { if (win && !win.isDestroyed()) win.setBounds(fitBounds(win.getBounds())); });
-  }).catch(error => { log(error); if (!testMode) dialog.showErrorBox('日序無法啟動', `請檢查資料夾是否可寫入，或查看日序資料夾中的 app.log。\n\n${String(error)}`); app.quit(); });
+  }).catch(error => { log(error); if (!testMode) dialog.showErrorBox(t('日序無法啟動'), `${t('請檢查資料夾是否可寫入，或查看日序資料夾中的 app.log。')}\n\n${String(error)}`); app.quit(); });
 }

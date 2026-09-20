@@ -1,6 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type { AppEvent, Bridge } from '../src/shared/types.js';
 const bridge: Bridge = {
+  appearance: () => ipcRenderer.invoke('appearance'),
+  saveAppearance: patch => ipcRenderer.invoke('appearance-save', patch),
+  rendererReady: () => ipcRenderer.invoke('renderer-ready'),
   snapshot: () => ipcRenderer.invoke('snapshot'),
   save: value => ipcRenderer.invoke('save', value),
   remove: value => ipcRenderer.invoke('remove', value),

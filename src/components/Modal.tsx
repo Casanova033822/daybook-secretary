@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n';
 import { useEffect, useRef } from 'react';
 import { Icon } from './Icon';
 export function Modal({ title, subtitle, children, onClose, wide = false }: { title: string; subtitle?: string; children: React.ReactNode; onClose: () => void; wide?: boolean }) {
@@ -19,7 +20,7 @@ export function Modal({ title, subtitle, children, onClose, wide = false }: { ti
     return () => { document.removeEventListener('keydown', keydown); previous?.focus(); };
   }, [onClose]);
   return <div className="modal-backdrop"><div ref={ref} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} className={`modal ${wide ? 'wide' : ''}`}>
-    <div className="modal-header"><div><span className="eyebrow">YOUR DAY, YOUR PACE</span><h2>{title}</h2>{subtitle && <p>{subtitle}</p>}</div><button className="icon-button" type="button" aria-label="關閉對話框" onClick={onClose}><Icon name="close"/></button></div>
+    <div className="modal-header"><div><span className="eyebrow">{t('你的日子，你的步調')}</span><h2>{title}</h2>{subtitle && <p>{subtitle}</p>}</div><button className="icon-button" type="button" aria-label={t("關閉對話框")} onClick={onClose}><Icon name="close"/></button></div>
     {children}
   </div></div>;
 }

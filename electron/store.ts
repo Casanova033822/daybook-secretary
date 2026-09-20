@@ -5,10 +5,12 @@ import { dirname } from 'node:path';
 import type { Exception, Item, ItemInput, Occurrence, OccurrenceState, Preset, SaveRequest, Settings, Snapshot, Target } from '../src/shared/types.js';
 import { DEFAULT_REMINDERS, makeOccurrence, occursOn, PRESET_TITLES, validateInput, validateReminders } from '../src/shared/domain.js';
 import { addDays, dayDifference, validDate } from '../src/shared/time.js';
+import { isLocale, isTheme, type Appearance } from '../src/shared/appearance.js';
+import { translate } from '../src/shared/i18n.js';
 
 export class Store {
   readonly db: DatabaseSync;
-  constructor(path: string) {
+  constructor(path: string, initial: Appearance = { theme: 'light', locale: 'zh-TW' }) {
     if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
     this.db = new DatabaseSync(path);
     this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
@@ -19,7 +21,12 @@ export class Store {
       CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
       PRAGMA user_version=1;`);
     if (!this.getMeta('settings')) this.setMeta('settings', { launchOnLogin: true, alwaysOnTop: false, defaultReminders: DEFAULT_REMINDERS });
-    if (!this.getMeta('presets')) this.setMeta('presets', PRESET_TITLES.map(title => ({ id: randomUUID(), title })));
+    const settings = this.getMeta<Settings>('settings')!;
+    if (!isTheme(settings.theme) || !isLocale(settings.locale)) this.setMeta('settings', {
+      ...settings, theme: isTheme(settings.theme) ? settings.theme : initial.theme,
+      locale: isLocale(settings.locale) ? settings.locale : initial.locale,
+    });
+    if (!this.getMeta('presets')) this.setMeta('presets', PRESET_TITLES.map(title => ({ id: randomUUID(), title: translate(this.snapshot().settings.locale, title) })));
   }
   close(): void { this.db.close(); }
   getMeta<T>(key: string): T | undefined {
@@ -116,7 +123,16 @@ export class Store {
   saveSettings(value: unknown): void {
     const s = value as Settings;
     if (!s || typeof s.launchOnLogin !== 'boolean' || typeof s.alwaysOnTop !== 'boolean') throw new Error('設定格式不正確。');
-    this.setMeta('settings', { launchOnLogin: s.launchOnLogin, alwaysOnTop: s.alwaysOnTop, defaultReminders: validateReminders(s.defaultReminders) });
+    this.setMeta('settings', { ...this.snapshot().settings, launchOnLogin: s.launchOnLogin, alwaysOnTop: s.alwaysOnTop, defaultReminders: validateReminders(s.defaultReminders) });
+  }
+  saveAppearance(value: unknown): Appearance {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('設定格式不正確。');
+    const patch = value as Record<string, unknown>;
+    if (Object.keys(patch).some(key => key !== 'theme' && key !== 'locale') ||
+      ('theme' in patch && !isTheme(patch.theme)) || ('locale' in patch && !isLocale(patch.locale))) throw new Error('設定格式不正確。');
+    const settings = { ...this.snapshot().settings, ...patch } as Settings;
+    this.setMeta('settings', settings);
+    return { theme: settings.theme, locale: settings.locale };
   }
   hasDelivered(id: string): boolean { return !!this.db.prepare('SELECT id FROM deliveries WHERE id=?').get(id); }
   markDelivered(ids: string[], now: number): void { this.transaction(() => { const stmt = this.db.prepare('INSERT OR IGNORE INTO deliveries(id,at) VALUES(?,?)'); for (const id of ids) stmt.run(id, now); }); }

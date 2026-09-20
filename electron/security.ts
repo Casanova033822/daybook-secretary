@@ -20,7 +20,7 @@ export function bundledPath(value: string, dist: string): string | undefined {
     const url = new URL(value);
     if (url.protocol !== 'daybook:' || url.hostname !== 'app' || url.port || url.username || url.password || url.search) return undefined;
     const path = decodeURIComponent(url.pathname);
-    if (!/^\/(?:index\.html|assets\/[A-Za-z0-9_-]+\.(?:js|css|wav))$/.test(path)) return undefined;
+    if (!/^\/(?:index\.html|assets\/[A-Za-z0-9_-]+\.(?:js|css|wav|svg))$/.test(path)) return undefined;
     return join(dist, path.slice(1));
   } catch { return undefined; }
 }

@@ -2,6 +2,7 @@ import { reminderCandidates, type DueReminder } from '../src/shared/domain.js';
 import { dateKey } from '../src/shared/time.js';
 import type { Store } from './store.js';
 import type { ReminderDeliveryResult } from '../src/shared/types.js';
+import { localizedError } from '../src/shared/i18n.js';
 
 export class Scheduler {
   private last: number | null = null;
@@ -51,10 +52,10 @@ export class Scheduler {
       if (!this.unrecorded.size) this.recordAt = now;
       for (const p of batch) { this.unrecorded.add(p.reminder.id); this.pending.delete(p.reminder.id); }
       this.persistReceipts(now);
-      if (result.audio === 'failed') this.onFailure(`提醒小卡已顯示，但提示音播放失敗：${result.error ?? '未知原因'}`);
+      if (result.audio === 'failed') this.onFailure(localizedError('小卡已顯示，但提示音播放失敗：{detail}', { detail: result.error ?? '未知原因' }).message);
     } else {
       for (const p of batch) { if (result.display === 'cancelled') p.attempts--; p.next = now + (p.attempts <= 1 ? 2000 : 5000); }
-      if (result.display === 'failed') this.onFailure(`提醒小卡顯示失敗${batch.every(p => p.attempts >= 3) ? '（已重試 3 次）' : '，將重試'}：${result.error ?? '未知原因'}`);
+      if (result.display === 'failed') this.onFailure(localizedError(batch.every(p => p.attempts >= 3) ? '提醒小卡顯示失敗（已重試 3 次）：{detail}' : '提醒小卡顯示失敗，將重試：{detail}', { detail: result.error ?? '未知原因' }).message);
     }
   }
   private persistReceipts(now: number): void {
@@ -64,7 +65,7 @@ export class Scheduler {
       this.unrecorded.clear(); this.nextRecordRetry = 0;
     } catch (error) {
       this.nextRecordRetry = now + 5000;
-      this.onFailure(`提醒已顯示，紀錄寫入失敗，將重試儲存而不重複顯示：${String(error)}`);
+      this.onFailure(localizedError('提醒已顯示，紀錄寫入失敗，將重試儲存而不重複顯示：{detail}', { detail: String(error) }).message);
     }
   }
 }

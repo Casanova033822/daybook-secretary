@@ -2,6 +2,8 @@ import { BrowserWindow, ipcMain, screen, type IpcMainInvokeEvent } from 'electro
 import { join } from 'node:path';
 import type { ReminderCardContent, ReminderDeliveryResult, Target } from '../src/shared/types.js';
 import { rendererUrl, trustedRenderer } from './security.js';
+import { backgroundFor, type Appearance } from '../src/shared/appearance.js';
+import { localizedError, translate } from '../src/shared/i18n.js';
 
 type Request = { content: ReminderCardContent; relevant: () => boolean; resolve: (result: ReminderDeliveryResult) => void };
 type Active = Request & { win: BrowserWindow; shown: boolean; settled: boolean; readyTimer?: NodeJS.Timeout; audioTimer?: NodeJS.Timeout; closeTimer?: NodeJS.Timeout };
@@ -12,13 +14,15 @@ export class ReminderWindows {
   private active?: Active;
   private stopped = false;
   constructor(private readonly root: string, private readonly openTarget: (target?: Target) => void,
-    private readonly audit: (content: ReminderCardContent, result: ReminderDeliveryResult) => void, private readonly devUrl?: string) {
+    private readonly audit: (content: ReminderCardContent, result: ReminderDeliveryResult) => void, private readonly devUrl?: string,
+    private readonly appearance: () => Appearance = () => ({ theme: 'light', locale: 'zh-TW' })) {
     const handle = (name: string, action: (active: Active, value: any) => unknown) => ipcMain.handle(name, (event: IpcMainInvokeEvent, value) => {
       const active = this.active;
       if (!active || event.sender !== active.win.webContents || event.senderFrame !== active.win.webContents.mainFrame || !trustedRenderer(event.senderFrame?.url, join(this.root, 'dist'), this.devUrl, true)) throw new Error('無效的提醒視窗呼叫。');
       return action(active, value);
     });
     handle('reminder-content', a => a.content);
+    handle('reminder-appearance', () => this.appearance());
     handle('reminder-ready', a => {
       if (a.shown) return false;
       try {
@@ -48,11 +52,20 @@ export class ReminderWindows {
     return new Promise(resolve => { this.queue.push({ content, relevant, resolve }); this.next(); });
   }
   dispose(): void {
+    // Pending cards read the current preference when they are shown.
     this.stopped = true;
     for (const request of this.queue.splice(0)) request.resolve({ display: 'cancelled', audio: 'not-attempted' });
     if (this.active) {
       this.settle(this.active, { display: this.active.shown ? 'shown' : 'cancelled', audio: 'cancelled' });
       this.active.win.destroy();
+    }
+  }
+  updateAppearance(): void {
+    const value = this.appearance(), win = this.active?.win;
+    if (win && !win.isDestroyed()) {
+      win.setBackgroundColor(backgroundFor(value.theme));
+      win.setTitle(translate(value.locale, '日序提醒'));
+      win.webContents.send('appearance-changed', value);
     }
   }
   private settle(a: Active, result: ReminderDeliveryResult): void {
@@ -72,10 +85,10 @@ export class ReminderWindows {
     let created: BrowserWindow | undefined;
     try {
       const area = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).workArea;
-      const width = Math.min(380, area.width - 24), height = Math.min(120 + Math.min(3, request.content.items.length) * 84, area.height - 24);
+        const width = Math.min(420, area.width - 24), height = Math.min(168 + Math.min(3, request.content.items.length) * 112, area.height - 24);
       const win = created = new BrowserWindow({ width, height, x: area.x + area.width - width - 12, y: area.y + area.height - height - 12,
         show: false, frame: false, focusable: false, skipTaskbar: true, alwaysOnTop: true, resizable: false, movable: false,
-        minimizable: false, maximizable: false, fullscreenable: false, backgroundColor: '#fffdf9', title: '日序提醒', icon: join(this.root, 'assets/icon.png'),
+        minimizable: false, maximizable: false, fullscreenable: false, backgroundColor: backgroundFor(this.appearance().theme), title: translate(this.appearance().locale, '日序提醒'), icon: join(this.root, 'assets/icon.png'),
         webPreferences: { preload: join(this.root, 'dist-electron/electron/reminder-preload.cjs'), contextIsolation: true, nodeIntegration: false,
           sandbox: true, backgroundThrottling: false, autoplayPolicy: 'no-user-gesture-required' } });
       const a: Active = { ...request, win, shown: false, settled: false };
@@ -85,7 +98,7 @@ export class ReminderWindows {
       win.webContents.on('will-navigate', e => e.preventDefault());
       win.webContents.on('will-frame-navigate', e => e.preventDefault());
       win.webContents.on('will-attach-webview', e => e.preventDefault());
-      win.webContents.on('render-process-gone', (_event, details) => this.fail(a, `提醒視窗中斷：${details.reason}`));
+      win.webContents.on('render-process-gone', (_event, details) => this.fail(a, localizedError('提醒視窗中斷：{detail}', { detail: details.reason })));
       win.on('closed', () => {
         clearTimeout(a.readyTimer); clearTimeout(a.audioTimer); clearTimeout(a.closeTimer);
         if (!a.settled) this.settle(a, { display: a.shown ? 'shown' : 'failed', audio: a.shown ? 'cancelled' : 'not-attempted', error: a.shown ? undefined : '提醒視窗在顯示前關閉。' });

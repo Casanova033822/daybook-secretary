@@ -17,6 +17,7 @@ test('IPC trusts the correct document and card hash, not another frame/document'
 });
 test('production allows bundled resources, denies outbound traffic and outside files', () => {
   assert.ok(allowedRequest('daybook://app/assets/chime-abc.wav', dist));
+  assert.ok(allowedRequest('daybook://app/assets/hk-abc.svg', dist));
   assert.ok(allowedRequest('data:image/png;base64,AA==', dist));
   for (const url of ['https://example.com', 'http://127.0.0.1:5173', 'ws://127.0.0.1:5173', pathToFileURL(resolve(dist, 'index.html')).href, pathToFileURL(resolve(dist, '../daybook.sqlite')).href, pathToFileURL(resolve(dist + '-other', 'secret.txt')).href, 'file://remote-host/share/secret', 'not a URL']) assert.equal(allowedRequest(url, dist), false, url);
   assert.ok(allowedRequest('ws://127.0.0.1:5173', dist, 'http://127.0.0.1:5173/'));

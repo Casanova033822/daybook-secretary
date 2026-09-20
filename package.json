@@ -1,9 +1,9 @@
 {
   "name": "daybook-secretary",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "日序 — 離線 Windows 私人秘書",
-  "author": "Personal",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "author": "Casanova033822",
+  "license": "MIT",
   "private": true,
   "engines": {
     "node": ">=24 <25"

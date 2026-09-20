@@ -1,0 +1,169 @@
+/* Reading sizes are shared by every locale and both themes. Never scale the UI
+   with transforms: render text at its real pixel size with the native font stack. */
+:root {
+  font-size: 16px;
+  line-height: 1.5;
+  text-rendering: auto;
+  -webkit-font-smoothing: auto;
+  --font-caption: 14px;
+  --font-control: 15px;
+  --font-body: 16px;
+}
+:root[data-theme="light"] {
+  --ink: #253244; --text-primary: #253244; --text-muted: #526174;
+  --text-accent: #89472c; --text-success: #39664b; --text-danger: #a33735;
+  --surface: #fff; --surface-muted: #eef1f6; --line: #d8dfe8;
+}
+:root[data-theme="dark"] { --text-muted: #c0cad8; --line: #465164; }
+button:disabled { opacity: .65; }
+.button.primary, :root[data-theme="dark"] .button.primary { color: #251c17; }
+.button.primary:hover { background: #e3ab8b; }
+.button, .add-button, .notification-test .button, .empty-state .button {
+  font-size: var(--font-control); min-height: 44px; padding: 11px 18px; font-weight: 600;
+}
+.text-button { font-size: var(--font-caption); min-height: 36px; line-height: 1.5; }
+.icon-button { width: 34px; height: 34px; }
+input, select, textarea { font-size: var(--font-body); line-height: 1.5; }
+input::placeholder, textarea::placeholder { opacity: 1; }
+
+/* The theme switch belongs with the main action, outside the draggable titlebar. */
+.page-header { gap: 24px; align-items: center; }
+.page-header > div:first-child { min-width: 0; flex: 1; }
+.header-actions, .mini-actions { display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; min-width: 188px; }
+.theme-control { position: relative; }
+.theme-toggle {
+  position: relative; isolation: isolate; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  direction: ltr; width: 100%; min-height: 44px; padding: 4px;
+  background: var(--surface-muted); border: 1px solid var(--line); border-radius: 24px;
+  font-size: var(--font-caption); line-height: 1.5; font-weight: 600;
+}
+.theme-toggle-thumb {
+  position: absolute; z-index: -1; inset: 4px auto 4px 4px; width: calc((100% - 8px) / 2);
+  border-radius: 20px; background: var(--surface); box-shadow: 0 1px 4px #0002;
+  transition: transform .2s ease;
+}
+.theme-toggle[data-theme="dark"] .theme-toggle-thumb { transform: translateX(100%); }
+.theme-option { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 5px 9px; color: var(--text-muted); }
+.theme-option[data-active="true"] { color: var(--ink); }
+.theme-option[data-active="true"] svg { color: var(--text-accent); }
+.theme-toggle:hover { border-color: var(--text-muted); }
+.theme-toggle:disabled { opacity: 1; cursor: progress; }
+.header-actions .add-button, .mini-actions .add-button { width: 100%; justify-content: center; }
+
+/* Main view: readable supporting text, clear hierarchy, room for long labels. */
+.page-header h1 { font-size: 28px; line-height: 1.4; font-weight: 650; letter-spacing: 0; }
+.page-header p { font-size: var(--font-caption); line-height: 1.7; letter-spacing: 0; margin-top: 12px; }
+.eyebrow, .modal-header .eyebrow, .mini-header .eyebrow { font-size: 12px; line-height: 1.6; letter-spacing: 1.3px; }
+.summary-card > div > span { font-size: var(--font-caption); }
+.summary-card strong { font-size: 30px; }
+.agenda-heading h2, .section-heading h2, .mini-mode .section-heading h2 { font-size: 18px; }
+.today-button, .segmented button { font-size: var(--font-caption); min-height: 36px; }
+.list-column-labels { font-size: var(--font-caption); }
+.agenda-row:not(.compact) { min-height: 84px; padding-top: 16px; padding-bottom: 16px; }
+.row-title strong, .compact .row-title strong { font-size: var(--font-body); line-height: 1.5; color: var(--ink); }
+.row-title strong { white-space: normal; overflow-wrap: anywhere; }
+.row-note, .compact .row-note, .row-time > span, .status-pending, .reminder-tag,
+.badge, .compact .badge { font-size: var(--font-caption); line-height: 1.5; }
+.row-note { margin-top: 6px; }
+.row-time > span { white-space: normal; }
+.badge { padding: 4px 6px; }
+.row-actions .icon-button { height: 36px; }
+.section-heading { flex-wrap: wrap; }
+.section-heading h2 > span { font-size: var(--font-caption); }
+.empty-state h3, .mini-mode .empty-state h3 { font-size: 20px; letter-spacing: 0; }
+.empty-state p, .empty-tasks, .mini-mode .empty-tasks, .page-footer { font-size: var(--font-caption); line-height: 1.7; }
+.page-footer { flex-wrap: wrap; }
+.brand { margin-bottom: 30px; padding-left: 0; gap: 10px; }
+.brand span:not(.brand-mark), .sidebar-note p, .sidebar-bottom { font-size: var(--font-caption); letter-spacing: 0; }
+.brand strong { letter-spacing: 0; }
+.nav-label, .sidebar-note > span { font-size: 12px; letter-spacing: 1px; }
+.nav-item { font-size: var(--font-control); padding: 13px 10px; gap: 10px; }
+.nav-item > span { font-size: var(--font-caption); }
+.mini-calendar-title strong { font-size: var(--font-control); }
+.mini-calendar-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.mini-calendar-grid .weekday, .mini-calendar-grid > button { font-size: var(--font-caption); }
+.mini-calendar-grid > button { height: 32px; padding-inline: 0; min-width: 0; }
+.mini-calendar-grid > button.selected { color: #251c17; }
+.mini-calendar-grid > button.today:not(.selected) { color: var(--text-accent); }
+.sidebar-note { margin: 24px 0; padding: 18px 12px; }
+.sidebar-bottom { padding: 10px 0 0; }
+.titlebar-name, .titlebar-name > span:last-child { font-size: 12px; letter-spacing: 0; }
+
+/* Settings and editor: 16px labels, 14px explanations, comfortable separation. */
+.modal { width: 720px; }
+.modal.wide { width: 780px; }
+.modal-header { padding: 24px 30px 22px; gap: 20px; }
+.modal-header h2 { font-size: 26px; line-height: 1.4; letter-spacing: 0; }
+.modal-header p { font-size: var(--font-control); line-height: 1.6; }
+.modal-body { padding: 26px 30px; gap: 24px; }
+.settings-body { min-height: 0; }
+.settings-tabs { padding-inline: 30px; flex-shrink: 0; }
+.settings-tabs > button { font-size: var(--font-control); padding-block: 16px; }
+.setting-row { gap: 28px; padding: 0 0 24px; }
+.setting-row strong, .settings-section h3, .notification-test strong, .field-label { font-size: var(--font-body); line-height: 1.5; color: var(--ink); }
+.setting-row small { font-size: var(--font-caption); line-height: 1.65; margin-top: 8px; }
+.field-hint, .notification-test p, .privacy-note, .notice, .combo-empty { font-size: var(--font-caption); line-height: 1.7; }
+.notification-test { padding: 20px; gap: 14px; align-items: flex-start; }
+.notification-test > div { min-width: 210px; }
+.notification-test > svg { margin-top: 3px; }
+.notification-test .button { margin-inline-start: 34px; }
+.notification-test p { margin-top: 8px; }
+.privacy-note { align-items: baseline; gap: 10px; }
+.setting-row input[role="switch"] { width: 44px; height: 26px; }
+.setting-row input[role="switch"]:before { width: 20px; height: 20px; }
+.setting-row input[role="switch"]:checked:before { transform: translateX(18px); }
+.language-picker { min-width: 208px; }
+.language-picker > button, .language-options > button { font-size: var(--font-control); min-height: 44px; }
+.language-options { max-height: 300px; width: 260px; }
+.form-field { gap: 10px; }
+.combo > input, .date-input, .preset-row input, .add-preset input { font-size: var(--font-body); }
+.combo-options > button, .repeat-section select, .until-row input, .scope-box select,
+.reminder-line select, .custom-offset input, .duration-row .combo > input { font-size: var(--font-control); }
+.duration-row, .until-row, .scope-box, .reminder-line, .delete-confirm, .preset-number { font-size: var(--font-caption); }
+.duration-row > .combo { width: 112px; }
+.time-section, .reminder-editor { gap: 14px; }
+.repeat-section { padding-block: 22px; gap: 16px; }
+.weekday-picker button { font-size: var(--font-caption); height: 40px; }
+.modal-footer { padding: 18px 30px; gap: 12px; }
+
+/* Calendar and the small windows use the same readable minimum, not tiny text. */
+.fc, .fc .fc-daygrid-day-number, .fc .fc-event, .calendar-event-inner small,
+.fc .fc-timegrid-axis-cushion, .fc .fc-timegrid-slot-label-cushion { font-size: var(--font-caption); }
+.fc .fc-col-header-cell { font-weight: 600; }
+/* FullCalendar's data-URL icon font is intentionally not permitted by our CSP.
+   Its only built-in icon in this UI is the popover close button: draw it in CSS. */
+.fc .fc-icon { font-family: inherit !important; }
+.fc .fc-popover-close { position: relative; width: 32px; height: 32px; opacity: 1; color: var(--text-muted); border-radius: 6px; }
+.fc .fc-popover-close:hover { background: var(--surface-muted); color: var(--ink); }
+.fc .fc-popover-close::before, .fc .fc-popover-close::after {
+  content: ''; position: absolute; width: 16px; height: 2px; left: 8px; top: 15px;
+  background: currentColor; transform: rotate(45deg);
+}
+.fc .fc-popover-close::after { transform: rotate(-45deg); }
+.fc .fc-timegrid-slot { height: 36px; }
+.calendar-check { width: 16px; height: 16px; margin-top: 3px; }
+.fc .fc-day-other .fc-daygrid-day-top { opacity: 1; color: var(--text-muted); }
+.mini-header h1 small, .mini-footer { font-size: var(--font-caption); }
+.mini-header h1 { letter-spacing: 0; }
+.mini-footer { gap: 16px; z-index: 5; flex-shrink: 0; }
+.mini-actions { min-width: 178px; gap: 4px; }
+.mini-footer > span { line-height: 1.6; }
+.agenda-row.compact { min-height: 88px; }
+.reminder-card-header strong, .reminder-card-item > strong { font-size: var(--font-body); }
+.reminder-card-header span:not(.brand-mark), .reminder-card-time, .reminder-card-time small,
+.reminder-card-reason, .reminder-card footer { font-size: var(--font-caption); }
+.reminder-card-item { gap: 6px; padding: 12px; }
+.reminder-card-item > strong { white-space: normal; overflow-wrap: anywhere; }
+.reminder-card footer { flex-wrap: wrap; }
+@media (max-width: 1050px) {
+  .page-header { gap: 18px; }
+  .page-header h1 { font-size: 24px; }
+  .list-column-labels, .agenda-row.timed:not(.compact) { grid-template-columns: 21px 124px minmax(0, 1fr) 76px 110px 52px; column-gap: 8px; }
+  .agenda-row.untimed:not(.compact) { grid-template-columns: 21px minmax(0, 1fr) 76px 52px; gap: 8px; }
+}
+@media (max-height: 650px) {
+  .modal-backdrop { padding: 12px; }
+  .modal-header { padding-block: 16px; }
+  .modal-body { padding-block: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .theme-toggle-thumb { transition: none; } }
