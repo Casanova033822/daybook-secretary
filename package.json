@@ -21,7 +21,7 @@
     "export:source": "node scripts/export-source.mjs",
     "licenses": "node scripts/generate-notices.mjs",
     "start": "node scripts/start.mjs",
-    "dist": "npm run licenses && npm run build && electron-builder --win nsis --x64 && npm run audit:release",
+    "dist": "npm run licenses && npm run build && electron-builder --win nsis --x64 --publish never && npm run audit:release",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {
