@@ -68,6 +68,7 @@ try {
     await page.locator('.fc-daygrid-more-link').first().click();
     const close = page.locator('.fc-popover-close');
     await expect(close).toBeVisible();
+    await expect(page.locator('.fc-popover')).toContainText('Popover item 1 · Overlap');
     const style = await close.evaluate(el => ({ font: getComputedStyle(el).fontFamily, before: getComputedStyle(el, '::before').content, width: getComputedStyle(el, '::before').width, label: el.getAttribute('title') || el.getAttribute('aria-label') }));
     assert.doesNotMatch(style.font, /fcicons/); assert.equal(style.before, '""'); assert.equal(style.width, '16px'); assert.ok(style.label);
     await page.screenshot({ path: `test-results/release-regressions-popover-${theme}.png` });

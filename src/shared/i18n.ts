@@ -8,7 +8,7 @@ import type { Reminder } from './types.js';
 export const catalog = { ...messages, ...editorMessages, ...settingsMessages, ...errorMessages };
 export const aliases = {
   '尚未排時間': '尚未安排時間', '待安排時間': '尚未安排時間', '已經完成': '已完成',
-  '當日時間表': '時間表', '結束於': '結束', ' · 重疊': '時段重疊',
+  '當日時間表': '時間表', '結束於': '結束',
   '關閉錯誤訊息': '關閉',
   '把時間，留給眼前這一件': '把時間，留給眼前這一件。',
   '日序小卡＋提示音測試': '提醒測試 · 請確認小卡與提示音',

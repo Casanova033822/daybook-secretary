@@ -12,6 +12,7 @@ export const messages = {
   '已完成': '已完成|Completed|完了済み|완료됨|Completado|Terminé|Erledigt|Concluído|Completato|Выполнено|مكتمل|पूर्ण|Selesai',
   '進行中': '进行中|In progress|進行中|진행 중|En curso|En cours|Läuft|Em andamento|In corso|В процессе|جارٍ|जारी|Berlangsung',
   '時段重疊': '时段重叠|Overlap|時間重複|시간 겹침|Solapamiento|Chevauchement|Überschneidung|Sobreposição|Sovrapposizione|Пересечение|تداخل|समय टकराव|Tumpang tindih',
+  ' · 重疊': ' · 重叠| · Overlap| · 時間重複| · 시간 겹침| · Solapamiento| · Chevauchement| · Überschneidung| · Sobreposição| · Sovrapposizione| · Пересечение| · تداخل| · समय टकराव| · Tumpang tindih',
   '待進行': '待进行|Upcoming|予定|예정|Pendiente|À venir|Anstehend|Pendente|In programma|Предстоит|قادم|आगामी|Mendatang',
   '已停止': '已停止|Stopped|停止済み|중지됨|Detenido|Arrêté|Gestoppt|Interrompido|Interrotto|Остановлено|متوقف|बंद|Dihentikan',
   '編輯': '编辑|Edit|編集|편집|Editar|Modifier|Bearbeiten|Editar|Modifica|Изменить|تعديل|संपादित करें|Edit',

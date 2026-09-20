@@ -18,6 +18,7 @@ test('all 14 dictionaries have complete, nonempty translations and matching para
   }
   for (const key of Object.keys(aliases) as (keyof typeof aliases)[]) for (const locale of locales) assert.ok(translate(locale, key));
   assert.equal(translate('en-US', '已完成 {done} / {total} 件事項', { done: 1, total: 2 }), 'Completed: 1 / 2');
+  for (const locale of locales) assert.match(translate(locale, ' · 重疊'), /^ · /, 'Overlap labels need a separator from user content');
   assert.equal(translateError("Error invoking remote method 'settings': Error: 設定格式不正確。", 'en-US'), 'Invalid settings.');
   assert.equal(translate('en-US', '與「{titles}」時段重疊，仍可儲存。', { titles: '<script>{done}|冥想' }), 'Overlaps with “<script>{done}|冥想”. You can still save.');
 });
