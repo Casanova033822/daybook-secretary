@@ -32,6 +32,17 @@ async function close() {
 }
 try {
   await launch();
+  await page.getByRole('button', { name: '偏好設定', exact: true }).click();
+  await page.locator('.settings-tabs button').nth(1).click();
+  const expectedPresets = ['meditation', 'workout', 'breakfast', 'lunch', 'dinner', 'shower'];
+  assert.deepEqual(await page.locator('.preset-row input').evaluateAll(inputs => inputs.map(input => input.value)), expectedPresets);
+  await page.evaluate(() => window.daybook.saveAppearance({ locale: 'en-US' }));
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en-US');
+  assert.deepEqual(await page.locator('.preset-row input').evaluateAll(inputs => inputs.map(input => input.value)), expectedPresets);
+  await page.screenshot({ path: 'test-results/presets-english-defaults.png' });
+  await page.getByRole('button', { name: 'Close', exact: true }).click();
+  await page.evaluate(() => window.daybook.saveAppearance({ locale: 'zh-TW' }));
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-TW');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.getByTestId('theme-toggle').click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');

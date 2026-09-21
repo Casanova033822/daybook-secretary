@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { Exception, Item, ItemInput, Occurrence, OccurrenceState, Preset, SaveRequest, Settings, Snapshot, Target } from '../src/shared/types.js';
-import { DEFAULT_REMINDERS, makeOccurrence, occursOn, PRESET_TITLES, validateInput, validateReminders } from '../src/shared/domain.js';
+import { DEFAULT_REMINDERS, DEFAULT_PRESET_TITLES, makeOccurrence, occursOn, PRESET_TITLES, validateInput, validateReminders } from '../src/shared/domain.js';
 import { addDays, dayDifference, validDate } from '../src/shared/time.js';
 import { isLocale, isTheme, locales, type Appearance } from '../src/shared/appearance.js';
 import { translate } from '../src/shared/i18n.js';
@@ -28,16 +28,16 @@ export class Store {
     });
     this.transaction(() => {
       const presets = this.getMeta<Preset[]>('presets');
-      const english = PRESET_TITLES.map(title => translate('en-US', title));
+      const english = DEFAULT_PRESET_TITLES;
       if (!presets) this.setMeta('presets', english.map(title => ({ id: randomUUID(), title })));
-      else if (!this.getMeta('english-preset-defaults-v1')) {
+      else if (!this.getMeta('english-preset-defaults-v2')) {
         // Old versions did not track which presets were edited. Only migrate an
         // intact default list; never guess about custom, reordered or deleted entries.
         const untouched = presets.length === PRESET_TITLES.length && locales.some(locale =>
           presets.every((preset, index) => preset.title === translate(locale, PRESET_TITLES[index])));
         if (untouched) this.setMeta('presets', presets.map((preset, index) => ({ ...preset, title: english[index] })));
       }
-      if (!this.getMeta('english-preset-defaults-v1')) this.setMeta('english-preset-defaults-v1', true);
+      if (!this.getMeta('english-preset-defaults-v2')) this.setMeta('english-preset-defaults-v2', true);
     });
   }
   close(): void { this.db.close(); }
