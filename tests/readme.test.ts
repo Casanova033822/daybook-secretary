@@ -33,7 +33,9 @@ test('five README languages link to each other and share working install instruc
       assert.ok(existsSync(resolve(dirname(path), link)), `${path}: missing ${link}`);
     }
   }
-  for (const path of ['README.md', 'README.zh-CN.md']) assert.ok(!read(path).includes('。'), `${path}: conversational Chinese has no full stops`);
+  for (const path of ['README.md', 'README.zh-CN.md', 'SECURITY.md', 'RELEASING.md', 'VERIFICATION.md', 'DEVELOPMENT_STATUS.md']) {
+    assert.ok(!read(path).includes('。'), `${path}: conversational Chinese has no full stops`);
+  }
 });
 
 test('source exports preserve all five README files and both screenshots', () => {
