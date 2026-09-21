@@ -26,12 +26,14 @@ test('five README languages link to each other and share working install instruc
     assert.ok(content.includes('Node.js 24.x') && content.includes('Windows 11 x64'), path);
     assert.equal(content.match(/<details>/g)?.length, 1, path);
     assert.equal(content.match(/<\/details>/g)?.length, 1, path);
+    assert.ok(!content.includes('initial download and dependency installation'), path);
     const links = [...content.matchAll(/\]\(([^)]+)\)/g), ...content.matchAll(/(?:href|src)="([^"]+)"/g)];
     for (const [, link] of links) {
       if (/^https:\/\//.test(link)) continue;
       assert.ok(existsSync(resolve(dirname(path), link)), `${path}: missing ${link}`);
     }
   }
+  for (const path of ['README.md', 'README.zh-CN.md']) assert.ok(!read(path).includes('。'), `${path}: conversational Chinese has no full stops`);
 });
 
 test('source exports preserve all five README files and both screenshots', () => {

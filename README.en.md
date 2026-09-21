@@ -6,7 +6,7 @@
 
 <h1 align="center">日序 · Daybook</h1>
 
-<p align="center">I built a simple Windows desktop planner and to-do app.<br>Works offline. No login. Your data stays on your computer.</p>
+<p align="center">A simple Windows planner for your schedule and to-dos<br>Works offline, needs no login, and keeps your data on your computer</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Windows-x64-0078D4" alt="Windows x64">
@@ -18,10 +18,10 @@
 
 ## Install
 
-1. Open the [download page](https://github.com/Casanova033822/daybook-secretary/releases/latest) and download **`Daybook-Setup-<version>.exe`**.
-2. Run the installer, follow the prompts, then launch **日序 (Daybook)**.
+1. Open the [download page](https://github.com/Casanova033822/daybook-secretary/releases/latest) and grab **`Daybook-Setup-<version>.exe`**.
+2. Run the installer, follow the prompts, and open **日序 (Daybook)**.
 
-For **Windows x64**, currently tested on Windows 11 x64. No Node.js or account needed. Once installed, the app works entirely offline.
+Daybook supports **Windows x64** and is tested on Windows 11 x64. You don't need Node.js or an account, and the app works completely offline once installed.
 
 > The installer is not code-signed, so Windows may show a security warning. Download only from this project's Releases page. Do not run files from an uncertain source.
 
@@ -34,10 +34,10 @@ For **Windows x64**, currently tested on Windows 11 x64. No Node.js or account n
 
 ## Quick start
 
-1. **Add an item:** Enter a name or pick a preset, such as meditation, workout or breakfast.
-2. **Set a time:** Choose start and end times, add reminders or repeats if needed, then save. No time yet? Choose **Save as to-do**.
-3. **Check your day:** Switch between day, week and month views. Tick the box on the left when something is done, or click the pencil to edit it.
-4. **Make it yours:** Manage presets, language and default reminders in **Preferences**. Switch light and dark themes above **Add item**.
+1. **Add something:** Type a name or pick one of your presets.
+2. **Give it a time:** Choose when it starts and ends, then add a reminder or repeat if you want. No time yet? Save it as a to-do.
+3. **Keep track:** Use the day, week or month view. Check the box when you're done, or click the pencil to make a change.
+4. **Set it up your way:** Manage presets, language and reminders in **Preferences**. The light and dark switch sits right above **Add item**.
 
 **Keep Daybook running to receive reminders.** Closing the window leaves it in the system tray. Reminders stop when you quit the app or shut down your computer.
 
@@ -45,18 +45,18 @@ For **Windows x64**, currently tested on Windows 11 x64. No Node.js or account n
   <img src="docs/images/daybook-reminder2.png" alt="Daybook desktop reminder card" width="502">
 </p>
 
-## Privacy & license
+## Privacy
 
-I don't collect your schedules. There are no ads, telemetry or cloud sync. Data is stored locally without encryption; please keep your own backups. See [security and privacy (Traditional Chinese)](SECURITY.md).
+I don't collect your schedules. There are no ads, telemetry or cloud sync. Your data stays on your computer without encryption, so keep a backup of anything important. See [security and privacy (Traditional Chinese)](SECURITY.md).
 
-I've released this project under the [MIT License](LICENSE). You're welcome to use, modify and share it, including commercially. Third-party components retain [their own licenses](THIRD_PARTY_NOTICES.md).
+You can find the licenses for third-party components [here](THIRD_PARTY_NOTICES.md).
 
 Questions or suggestions? [Let me know](https://github.com/Casanova033822/daybook-secretary/issues).
 
 <details>
 <summary>Run from source (developers)</summary>
 
-Requires Windows x64, Git and Node.js 24.x. The initial download and dependency installation need an internet connection.
+You'll need Windows x64, Git and Node.js 24.x.
 
 ```powershell
 git clone https://github.com/Casanova033822/daybook-secretary.git
