@@ -42,7 +42,7 @@
 **通知を受け取るには、Daybook を起動したままにしてください。** ウィンドウを閉じてもシステムトレイに常駐します。アプリを完全に終了した場合やパソコンの電源を切った場合は通知されません。
 
 <p align="center">
-  <img src="docs/images/daybook-reminder.png" alt="Daybook のデスクトップ通知カード" width="502">
+  <img src="docs/images/daybook-reminder2.png" alt="Daybook のデスクトップ通知カード" width="502">
 </p>
 
 ## プライバシーとライセンス

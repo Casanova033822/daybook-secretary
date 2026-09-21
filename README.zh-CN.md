@@ -42,7 +42,7 @@
 **需要提醒时，请让日序保持运行。** 关闭窗口后会留在系统托盘；完全退出程序或电脑关机时不会提醒。
 
 <p align="center">
-  <img src="docs/images/daybook-reminder.png" alt="日序桌面提醒卡片" width="502">
+  <img src="docs/images/daybook-reminder2.png" alt="日序桌面提醒卡片" width="502">
 </p>
 
 ## 隐私与授权

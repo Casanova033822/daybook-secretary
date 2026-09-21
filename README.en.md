@@ -42,7 +42,7 @@ For **Windows x64**, currently tested on Windows 11 x64. No Node.js or account n
 **Keep Daybook running to receive reminders.** Closing the window leaves it in the system tray. Reminders stop when you quit the app or shut down your computer.
 
 <p align="center">
-  <img src="docs/images/daybook-reminder.png" alt="Daybook desktop reminder card" width="502">
+  <img src="docs/images/daybook-reminder2.png" alt="Daybook desktop reminder card" width="502">
 </p>
 
 ## Privacy & license

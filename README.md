@@ -42,7 +42,7 @@
 **需要提醒時，請讓日序保持執行。** 關閉視窗會留在系統匣；完全結束程式或電腦關機時不會提醒。
 
 <p align="center">
-  <img src="docs/images/daybook-reminder.png" alt="日序桌面提醒小卡" width="502">
+  <img src="docs/images/daybook-reminder2.png" alt="日序桌面提醒小卡" width="502">
 </p>
 
 ## 隱私與授權

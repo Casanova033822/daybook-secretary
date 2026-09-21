@@ -42,7 +42,7 @@
 **알림을 받으려면 Daybook을 계속 실행해 두세요.** 창을 닫아도 시스템 트레이에 남아 있습니다. 앱을 완전히 종료하거나 컴퓨터를 끄면 알림이 울리지 않습니다.
 
 <p align="center">
-  <img src="docs/images/daybook-reminder.png" alt="Daybook 데스크톱 알림 카드" width="502">
+  <img src="docs/images/daybook-reminder2.png" alt="Daybook 데스크톱 알림 카드" width="502">
 </p>
 
 ## 개인정보 및 라이선스
