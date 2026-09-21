@@ -35,6 +35,8 @@
     "assets/flags/sa.svg",
     "assets/flags/in.svg",
     "assets/flags/id.svg",
+    "docs/images/daybook-overview.png",
+    "docs/images/daybook-reminder.png",
     "electron/main.ts",
     "electron/preload.cts",
     "electron/reminder-preload.cts",

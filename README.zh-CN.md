@@ -14,6 +14,8 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-8B5CF6" alt="MIT License"></a>
 </p>
 
+![日序主界面：日程、完成状态与深浅色切换](docs/images/daybook-overview.png)
+
 ## 下载安装
 
 1. 到 [下载页面](https://github.com/Casanova033822/daybook-secretary/releases/latest)，下载 **`Daybook-Setup-版本.exe`**。
@@ -32,9 +34,16 @@
 
 ## 如何使用
 
-点击「新增事项」，填写名称与时间后保存；还没决定时间就先记成待办。主题在新增按钮上方切换，语言在偏好设置中调整。
+1. **新增事项**：输入名称，或选择一个常用事项，例如冥想、运动、早餐。
+2. **安排时间**：设置开始与结束时间，需要时添加提醒或重复安排，然后保存。时间未定，也可以先记成待办。
+3. **查看与完成**：用日／周／月视图查看安排；完成后勾选左侧方框，需要调整时点击铅笔编辑。
+4. **按习惯调整**：在「偏好设置」中管理常用事项、语言与默认提醒；深浅色可以直接在「新增事项」上方切换。
 
 **需要提醒时，请让日序保持运行。** 关闭窗口后会留在系统托盘；完全退出程序或电脑关机时不会提醒。
+
+<p align="center">
+  <img src="docs/images/daybook-reminder.png" alt="日序桌面提醒卡片" width="502">
+</p>
 
 ## 隐私与授权
 

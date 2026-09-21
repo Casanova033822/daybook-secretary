@@ -14,6 +14,8 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-8B5CF6" alt="MIT License"></a>
 </p>
 
+![Daybook overview: schedule, completed items and theme switch](docs/images/daybook-overview.png)
+
 ## Install
 
 1. Open the [download page](https://github.com/Casanova033822/daybook-secretary/releases/latest) and download **`Daybook-Setup-<version>.exe`**.
@@ -32,9 +34,16 @@ For **Windows x64**, currently tested on Windows 11 x64. No Node.js or account n
 
 ## Quick start
 
-Click **Add item**, enter a name and time, then save. No time yet? Choose **Save as to-do**. Switch themes above the Add item button and change languages in Preferences.
+1. **Add an item:** Enter a name or pick a preset, such as meditation, workout or breakfast.
+2. **Set a time:** Choose start and end times, add reminders or repeats if needed, then save. No time yet? Choose **Save as to-do**.
+3. **Check your day:** Switch between day, week and month views. Tick the box on the left when something is done, or click the pencil to edit it.
+4. **Make it yours:** Manage presets, language and default reminders in **Preferences**. Switch light and dark themes above **Add item**.
 
 **Keep Daybook running to receive reminders.** Closing the window leaves it in the system tray. Reminders stop when you quit the app or shut down your computer.
+
+<p align="center">
+  <img src="docs/images/daybook-reminder.png" alt="Daybook desktop reminder card" width="502">
+</p>
 
 ## Privacy & license
 
