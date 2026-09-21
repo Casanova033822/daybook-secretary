@@ -5,7 +5,7 @@ import { dirname, join, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const readmes = ['README.md', 'README.zh-CN.md', 'README.en.md', 'README.ja.md', 'README.ko.md'];
-const screenshots = ['docs/images/daybook-overview.png', 'docs/images/daybook-reminder.png'];
+const screenshots = ['docs/images/daybook-overview.png', 'docs/images/daybook-reminder2.png'];
 const read = (path: string) => readFileSync(path, 'utf8');
 
 test('five README languages link to each other and share working install instructions', () => {

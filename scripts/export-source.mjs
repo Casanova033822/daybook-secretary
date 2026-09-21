@@ -5,7 +5,7 @@ const destination = resolve('release', `daybook-source-${version}`);
 // This is an allowlist, not a zip of the working directory. Local evidence/data are never copied.
 const roots = ['.gitignore', '.gitattributes', '.npmrc', '.nvmrc', 'package.json', 'package-lock.json', 'index.html', 'tsconfig.json', 'tsconfig.electron.json', 'vite.config.ts', 'README.md', 'VERIFICATION.md', 'SECURITY.md', 'RELEASING.md', 'THIRD_PARTY_NOTICES.md', 'LICENSE'];
 roots.push('README.zh-CN.md', 'README.en.md', 'README.ja.md', 'README.ko.md');
-roots.push('docs/images/daybook-overview.png', 'docs/images/daybook-reminder.png');
+roots.push('docs/images/daybook-overview.png', 'docs/images/daybook-reminder2.png');
 for (const path of roots) if (!existsSync(path)) throw new Error(`Required public file is missing: ${path}`);
 const files = [...roots];
 for (const directory of ['electron', 'src', 'scripts', 'tests', '.github']) {
