@@ -167,3 +167,24 @@ input::placeholder, textarea::placeholder { opacity: 1; }
   .modal-body { padding-block: 20px; }
 }
 @media (prefers-reduced-motion: reduce) { .theme-toggle-thumb { transition: none; } }
+
+/* One continuous strike across the entire completed row, including empty space.
+   The overlay must never block completion, editing or deletion controls. */
+.calendar-event-inner { position: relative; }
+.agenda-row.completed::after,
+.event-completed .calendar-event-inner::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 2px;
+  background: var(--text-muted);
+  transform: translateY(-50%);
+  z-index: 2;
+  pointer-events: none;
+}
+.agenda-row.completed .row-title strong,
+.agenda-row.completed .row-time strong,
+.agenda-row.completed .row-time > span,
+.agenda-row.completed.compact .row-note,
+.event-completed .calendar-event-inner > span { text-decoration: none; }

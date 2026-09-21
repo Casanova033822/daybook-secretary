@@ -36,12 +36,53 @@ try {
       assert.match(row.time, /^\d{2}:\d{2} - \d{2}:\d{2}$/);
     }
     assert.equal(measure.filler, false); assert.equal(measure.overflow, false);
-    await expect(page.locator('.row-title strong').first()).toHaveCSS('text-decoration-line', 'line-through');
+    const strike = await page.locator('.agenda-row.completed').first().evaluate(el => {
+      const style = getComputedStyle(el, '::after');
+      return { content: style.content, width: parseFloat(style.width), rowWidth: el.clientWidth, height: style.height, pointerEvents: style.pointerEvents };
+    });
+    assert.equal(strike.content, '""'); assert.equal(strike.height, '2px');
+    assert.equal(strike.width, strike.rowWidth); assert.equal(strike.pointerEvents, 'none');
     await expect(page.locator('.row-time > span')).toContainText('結束於');
     await page.screenshot({ path: `test-results/${version}-agenda-${width}.png` });
     measurements.push({ width, ...measure });
   }
   const session = await desktop.context().newCDPSession(page);
+  await page.evaluate(async () => {
+    const snapshot = await window.daybook.snapshot(), date = snapshot.items[0].date;
+    await window.daybook.save({ value: { title: 'Finished to-do', notes: 'Notes must stay readable', date, startAt: null, endAt: null, reminders: [], repeat: { kind: 'none', weekdays: [], until: null } } });
+    const item = (await window.daybook.snapshot()).items.find(i => i.title === 'Finished to-do');
+    await window.daybook.complete({ itemId: item.id, occurrenceDate: date, completed: true });
+  });
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate(theme => window.daybook.saveAppearance({ theme }), theme);
+    for (const mode of ['full', 'mini']) {
+      await page.evaluate(mode => window.daybook.windowAction(mode), mode);
+      if (mode === 'mini') await expect(page.locator('.app')).toHaveClass(/mini-mode/);
+      else await expect(page.locator('.app')).not.toHaveClass(/mini-mode/);
+      await expect(page.locator('.agenda-row.completed')).toHaveCount(2);
+      for (const row of await page.locator('.agenda-row.completed').all()) {
+        const strike = await row.evaluate(el => {
+          const style = getComputedStyle(el, '::after');
+          return { content: style.content, width: parseFloat(style.width), expected: el.clientWidth, pointerEvents: style.pointerEvents };
+        });
+        assert.equal(strike.content, '""'); assert.equal(strike.width, strike.expected); assert.equal(strike.pointerEvents, 'none');
+      }
+      const todo = page.getByTestId('agenda-row').filter({ hasText: 'Finished to-do' });
+      await todo.getByRole('checkbox').click(); await expect(todo).not.toHaveClass(/completed/);
+      assert.equal(await todo.evaluate(el => getComputedStyle(el, '::after').content), 'none');
+      await todo.getByRole('checkbox').click(); await expect(todo).toHaveClass(/completed/);
+      await page.screenshot({ path: `test-results/completed-row-${theme}-${mode}.png` });
+      await todo.locator('.row-main').click(); await expect(page.getByRole('dialog')).toBeVisible(); await page.keyboard.press('Escape');
+    }
+    await page.evaluate(() => window.daybook.windowAction('full'));
+    for (const view of ['週', '月']) {
+      await page.getByRole('button', { name: view, exact: true }).click();
+      await expect(page.locator('.event-completed .calendar-event-inner').first()).toBeVisible();
+      const strike = await page.locator('.event-completed .calendar-event-inner').first().evaluate(el => ({ content: getComputedStyle(el, '::after').content, width: parseFloat(getComputedStyle(el, '::after').width), expected: el.clientWidth }));
+      assert.equal(strike.content, '""'); assert.ok(Math.abs(strike.width - strike.expected) <= 1);
+    }
+    await page.getByRole('button', { name: '日', exact: true }).click();
+  }
   await session.send('DOM.enable'); await session.send('CSS.enable');
   const { root } = await session.send('DOM.getDocument');
   const { nodeId } = await session.send('DOM.querySelector', { nodeId: root.nodeId, selector: '.row-title strong' });

@@ -57,7 +57,7 @@ test('appearance migration preserves existing settings, presets and persistence'
 
 test('appearance writes validate input and do not change persisted state after a failure', () => {
   const store = new Store(':memory:', { theme: 'dark', locale: 'fr' });
-  assert.equal(store.snapshot().presets[0].title, 'Méditer');
+  assert.equal(store.snapshot().presets[0].title, 'Meditate');
   const previous = store.snapshot();
   for (const invalid of [null, [], { locale: 'xx' }, { theme: 'system' }, { alwaysOnTop: true }, { locale: null }]) assert.throws(() => store.saveAppearance(invalid));
   const set = store.setMeta.bind(store);

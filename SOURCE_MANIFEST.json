@@ -90,6 +90,7 @@
     "tests/installer.mjs",
     "tests/readability.mjs",
     "tests/readme.test.ts",
+    "tests/presets.test.ts",
     "tests/release.mjs",
     "tests/release-regressions.mjs",
     "tests/reminders.mjs",

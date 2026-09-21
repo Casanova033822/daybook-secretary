@@ -25,8 +25,8 @@ try {
   await page.screenshot({ path: 'test-results/01-empty.png' });
   await page.getByRole('button', { name: '新增事項', exact: true }).click();
   await page.getByRole('button', { name: '展開事項名稱', exact: true }).click();
-  await expect(page.getByRole('option', { name: '冥想', exact: true })).toBeVisible();
-  await page.getByRole('option', { name: '冥想', exact: true }).click();
+  await expect(page.getByRole('option', { name: 'Meditate', exact: true })).toBeVisible();
+  await page.getByRole('option', { name: 'Meditate', exact: true }).click();
   await page.getByRole('button', { name: '展開開始小時' }).click();
   await expect(page.getByRole('listbox', { name: '開始小時選項' }).getByRole('option')).toHaveCount(25);
   await page.getByRole('option', { name: '09', exact: true }).click();
@@ -44,10 +44,10 @@ try {
   let snapshot = await page.evaluate(() => window.daybook.snapshot());
   assert.match(snapshot.items[0].startAt, /T09:07$/);
   assert.match(snapshot.items[0].endAt, /T10:07$/);
-  await page.getByRole('checkbox', { name: '完成 冥想', exact: true }).click();
-  await expect(page.getByRole('checkbox', { name: '取消完成 冥想', exact: true })).toBeChecked();
-  assert.equal(await page.locator('.row-title strong').evaluate(el => getComputedStyle(el).textDecorationLine), 'line-through');
-  await page.getByRole('checkbox', { name: '取消完成 冥想', exact: true }).click();
+  await page.getByRole('checkbox', { name: '完成 Meditate', exact: true }).click();
+  await expect(page.getByRole('checkbox', { name: '取消完成 Meditate', exact: true })).toBeChecked();
+  assert.equal(await page.locator('.agenda-row.completed').evaluate(el => getComputedStyle(el, '::after').content), '""');
+  await page.getByRole('checkbox', { name: '取消完成 Meditate', exact: true }).click();
   console.log('Completion toggles passed');
   await page.getByRole('button', { name: '新增事項', exact: true }).click();
   await page.getByRole('combobox', { name: '事項名稱', exact: true }).fill('跨日測試');
@@ -108,8 +108,8 @@ try {
   const bounds = await desktop.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds());
   assert.equal(bounds.width, 390);
   await page.screenshot({ path: 'test-results/07-mini.png' });
-  await page.getByRole('checkbox', { name: '完成 冥想', exact: true }).click();
-  await expect(page.getByRole('checkbox', { name: '取消完成 冥想', exact: true })).toBeChecked();
+  await page.getByRole('checkbox', { name: '完成 Meditate', exact: true }).click();
+  await expect(page.getByRole('checkbox', { name: '取消完成 Meditate', exact: true })).toBeChecked();
   await desktop.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setBounds({ x: 80, y: 90, width: 410, height: 620 }));
   await page.waitForTimeout(400);
   await page.getByRole('button', { name: '關閉視窗並在背景執行', exact: true }).click();
@@ -118,7 +118,7 @@ try {
   await page.evaluate(() => window.daybook.windowAction('full'));
   await expect(page.locator('.mini-mode')).toHaveCount(0);
   await page.getByRole('button', { name: '日', exact: true }).click();
-  await expect(page.getByRole('checkbox', { name: '取消完成 冥想', exact: true })).toBeChecked();
+  await expect(page.getByRole('checkbox', { name: '取消完成 Meditate', exact: true })).toBeChecked();
   await Promise.race([desktop.close(), new Promise((_, reject) => setTimeout(() => reject(new Error('Desktop did not quit')), 6000))]);
   page = await launch();
   snapshot = await page.evaluate(() => window.daybook.snapshot());
